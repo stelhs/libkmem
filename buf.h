@@ -11,6 +11,7 @@ extern "C" {
 struct buf {
     u8 *data;
     uint len;
+    uint payload_len;
     struct le le;
 };
 
@@ -35,6 +36,8 @@ void *buf_concatenate(struct buf *b1, struct buf *b2);
 char *buf_to_str(struct buf *buf);
 void buf_dump(struct buf *buf, const char *name);
 void buf_list_dump(struct list *list);
+void buf_put(struct buf *buf, uint payload_len);
+struct list *buf_split(struct buf *buf, char sep);
 
 #ifdef __cplusplus
 }

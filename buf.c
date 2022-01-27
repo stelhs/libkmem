@@ -15,6 +15,7 @@ struct buf *buf_alloc(uint size)
 
     buf->data = (u8 *)(buf + 1);
     buf->len = size;
+    buf->payload_len = 0;
     return buf;
 }
 
@@ -26,6 +27,7 @@ struct buf *buf_strdub(const char *str)
         return NULL;
 
     memcpy(buf->data, str, len);
+    buf_put(buf, len);
     return buf;
 }
 
@@ -122,6 +124,7 @@ struct buf *buf_cpy(void *src, uint len)
         return NULL;
 
     memcpy(buf->data, src, len);
+    buf_put(buf, len);
     return buf;
 }
 
@@ -129,6 +132,7 @@ struct buf *buf_cpy(void *src, uint len)
 char *buf_to_str(struct buf *buf)
 {
     char *str;
+    uint len;
     if (!buf)
         return NULL;
     if (!buf->data[buf->len - 1])
@@ -138,7 +142,68 @@ char *buf_to_str(struct buf *buf)
     if (!str)
         return NULL;
     kmem_link_to_kmem(str, buf);
-    memcpy(str, buf->data, buf->len);
-    str[buf->len] = 0;
+    len = buf->payload_len ? buf->payload_len : buf->len;
+    memcpy(str, buf->data, len);
+    str[len] = 0;
     return str;
+}
+
+void buf_put(struct buf *buf, uint payload_len)
+{
+    if (payload_len > buf->len)
+        return;
+    buf->payload_len = payload_len;
+}
+
+struct list *buf_split(struct buf *buf, char sep)
+{
+    int len = buf->payload_len ? buf->payload_len : buf->len;
+    uint part_len = 0;
+    struct list *list;
+    struct buf *part_buf;
+    int i;
+
+    list = list_create();
+    if (!list) {
+        print_e("Can't alloc new list\n");
+        goto err;
+    }
+
+    u8 *part = buf->data;
+    for (i = 0; i < len; i++) {
+        u8 *p = buf->data + i;
+        if (*p != sep) {
+            part_len ++;
+            continue;
+        }
+
+        if (!part_len) {
+            part_len = 0;
+            part = p + 1;
+            continue;
+        }
+
+        part_buf = buf_cpy((void *)part, part_len);
+        if (!part_buf) {
+            print_e("Can't alloc buffer\n");
+            goto err;
+        }
+        buf_list_append(list, part_buf);
+        part_len = 0;
+        part = p + 1;
+    }
+
+    if (part_len) {
+        part_buf = buf_cpy((void *)part, part_len);
+        if (!part_buf) {
+            print_e("Can't alloc buffer\n");
+            goto err;
+        }
+        buf_list_append(list, part_buf);
+    }
+
+    kmem_ref(list);
+err:
+    kmem_deref(&list);
+    return list;
 }
