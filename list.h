@@ -41,6 +41,7 @@ void list_unlink(struct le *le);
 struct le *list_head(const struct list *list);
 struct le *list_tail(const struct list *list);
 int list_count(const struct list *list);
+void list_destroy(struct list *list);
 
 
 /**

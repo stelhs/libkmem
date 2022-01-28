@@ -173,3 +173,18 @@ int list_count(const struct list *list)
 
     return n;
 }
+
+/**
+ * deref all list items and self list
+ */
+void list_destroy(struct list *list)
+{
+    struct le *le;
+    LIST_FOREACH(list, le) {
+        void *item = list_ledata(le);
+        kmem_deref(&item);
+    }
+
+    kmem_deref(&list);
+}
+
