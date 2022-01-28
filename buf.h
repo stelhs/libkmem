@@ -38,6 +38,7 @@ void buf_dump(struct buf *buf, const char *name);
 void buf_list_dump(struct list *list);
 void buf_put(struct buf *buf, uint payload_len);
 struct list *buf_split(struct buf *buf, char sep);
+struct buf *buf_trim(struct buf *buf);
 
 #ifdef __cplusplus
 }

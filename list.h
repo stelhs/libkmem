@@ -67,6 +67,11 @@ static inline struct le *le_next(struct le *le)
     return le ? le->next : NULL;
 }
 
+static inline struct le *list_first(const struct list *list)
+{
+    return list_ledata(list_head(list));
+}
+
 
 #define LIST_FOREACH(list, le) \
     for ((le) = list_head((list)); (le); (le) = (le)->next)

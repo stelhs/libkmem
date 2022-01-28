@@ -51,7 +51,7 @@ void *buf_concatenate(struct buf *b1, struct buf *b2)
 void buf_dump(struct buf *buf, const char *name)
 {
     uint cnt = 0;
-    uint row_cnt, row_len;
+    uint row_cnt, row_len, len;
 
     printf("\n");
     if (name)
@@ -61,11 +61,12 @@ void buf_dump(struct buf *buf, const char *name)
         printf("buf is NULL\n");
         return;
     }
-    printf("len: %u\n", buf->len);
+    len = buf->payload_len ? buf->payload_len : buf->len;
+    printf("len: %u, payload_len: %d\n", buf->len, buf->payload_len);
 
-    while(cnt < buf->len) {
+    while(cnt < len) {
         printf("%.4x - ", cnt);
-        row_len = (cnt + 16) < buf->len ? 16 : (buf->len - cnt);
+        row_len = (cnt + 16) < len ? 16 : (len - cnt);
         for (row_cnt = 0; row_cnt < 16; row_cnt++) {
             if (row_cnt < row_len)
                 printf("%.2x ", buf->data[cnt + row_cnt]);
@@ -206,4 +207,25 @@ struct list *buf_split(struct buf *buf, char sep)
 err:
     kmem_deref(&list);
     return list;
+}
+
+struct buf *buf_trim(struct buf *buf)
+{
+    uint len = buf->payload_len ? buf->payload_len : buf->len;
+    uint new_len;
+    struct buf *new_buf;
+    u8 *start = buf->data;
+    u8 *back;
+
+    while(isspace(*start) && *start != 0) start++;
+
+    back = buf->data + len;
+    while(isspace(*--back) && back != start);
+    new_len = back - start;
+    if (new_len <= 0)
+        return buf_alloc(0);
+
+    new_buf = buf_cpy(start, new_len + 1);
+    new_buf->data[new_len + 1] = 0;
+    return new_buf;
 }
