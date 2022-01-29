@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -fPIC -Wall -Wextra -O2 -g
 LDFLAGS = -shared
-TARGET_LIB = libmem.so
+TARGET_LIB = libkmem.so
 
 SRCS = kref.c kref_alloc.c list.c buf.c
 OBJS = $(SRCS:.c=.o)
@@ -20,4 +20,3 @@ include $(SRCS:.c=.d)
 .PHONY: clean
 clean:
 	rm -f ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d)
-
