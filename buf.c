@@ -7,7 +7,7 @@ static void buf_destructor(void *mem)
     memset(buf->data, 0, buf->len);
 }
 
-struct buf *buf_alloc(uint size)
+struct buf *buf_alloc(size_t size)
 {
     struct buf *buf = kzref_alloc(sizeof *buf + size, buf_destructor);
     if (!buf)
@@ -21,7 +21,7 @@ struct buf *buf_alloc(uint size)
 
 struct buf *buf_strdub(const char *str)
 {
-    uint len = strlen(str) + 1;
+    size_t len = strlen(str) + 1;
     struct buf *buf = buf_alloc(len);
     if (!buf)
         return NULL;
@@ -51,7 +51,8 @@ void *buf_concatenate(struct buf *b1, struct buf *b2)
 void buf_dump(struct buf *buf, const char *name)
 {
     uint cnt = 0;
-    uint row_cnt, row_len, len;
+    uint row_cnt, row_len;
+    size_t len;
 
     printf("\n");
     if (name)
@@ -62,7 +63,7 @@ void buf_dump(struct buf *buf, const char *name)
         return;
     }
     len = buf->payload_len ? buf->payload_len : buf->len;
-    printf("len: %u, payload_len: %d\n", buf->len, buf->payload_len);
+    printf("len: %lu, payload_len: %lu\n", buf->len, buf->payload_len);
 
     while(cnt < len) {
         printf("%.4x - ", cnt);
@@ -118,7 +119,7 @@ void buf_list_dump(struct list *list)
 }
 
 
-struct buf *buf_cpy(void *src, uint len)
+struct buf *buf_cpy(void *src, size_t len)
 {
     struct buf *buf = buf_alloc(len);
     if (!buf)
@@ -133,7 +134,7 @@ struct buf *buf_cpy(void *src, uint len)
 char *buf_to_str(struct buf *buf)
 {
     char *str;
-    uint len;
+    size_t len;
     if (!buf)
         return NULL;
     if (!buf->data[buf->len - 1])
@@ -149,7 +150,7 @@ char *buf_to_str(struct buf *buf)
     return str;
 }
 
-void buf_put(struct buf *buf, uint payload_len)
+void buf_put(struct buf *buf, size_t payload_len)
 {
     if (payload_len > buf->len)
         return;
@@ -158,11 +159,11 @@ void buf_put(struct buf *buf, uint payload_len)
 
 struct list *buf_split(struct buf *buf, char sep)
 {
-    int len = buf->payload_len ? buf->payload_len : buf->len;
-    uint part_len = 0;
+    size_t len = buf->payload_len ? buf->payload_len : buf->len;
+    size_t part_len = 0;
     struct list *list;
     struct buf *part_buf;
-    int i;
+    uint i;
 
     list = list_create();
     if (!list) {
@@ -211,8 +212,8 @@ err:
 
 struct buf *buf_trim(struct buf *buf)
 {
-    uint len = buf->payload_len ? buf->payload_len : buf->len;
-    uint new_len;
+    size_t len = buf->payload_len ? buf->payload_len : buf->len;
+    size_t new_len;
     struct buf *new_buf;
     u8 *start = buf->data;
     u8 *back;

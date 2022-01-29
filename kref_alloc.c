@@ -11,7 +11,7 @@ struct kralloc {
     struct kref kref;
     struct kralloc *linked_mem;
     u8 shift_size;
-    uint size;
+    size_t size;
     void (*destructor)(void *mem);
 };
 
@@ -154,7 +154,7 @@ void *kmem_ref(void *mem)
 /**
  * Return allocated size
  */
-uint kmem_size(void *mem)
+size_t kmem_size(void *mem)
 {
     struct kralloc *a = (struct kralloc *)mem - 1;
     if(strcmp(a->magic, "kralloc") != 0)
@@ -285,7 +285,7 @@ char *kref_sprintf(const char *fmt, ...)
 char *kref_strdub(const char *src)
 {
     char *dst;
-    uint len = (uint)strlen(src);
+    size_t len = strlen(src);
     if (len == 0)
         return NULL;
     dst = (char *)kref_alloc(len + 1, NULL);
@@ -297,8 +297,8 @@ char *kref_strdub(const char *src)
 
 void *kref_concatenate_mem(void *mem1, void *mem2)
 {
-    uint len1 = kmem_size(mem1);
-    uint len2 = kmem_size(mem2);
+    size_t len1 = kmem_size(mem1);
+    size_t len2 = kmem_size(mem2);
     u8 *result;
 
     if (!len1 || !len2)
@@ -312,4 +312,3 @@ void *kref_concatenate_mem(void *mem1, void *mem2)
     memcpy(result + len1, mem2, len2);
     return result;
 }
-

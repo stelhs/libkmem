@@ -21,7 +21,7 @@ void *_kmem_deref(void **mem);
 char *kref_sprintf(const char *fmt, ...);
 char *kref_strdub(const char *src);
 int kmem_get_ref_count(void *mem);
-uint kmem_size(void *mem);
+size_t kmem_size(void *mem);
 void *kref_concatenate_mem(void *mem1, void *mem2);
 
 /**
@@ -30,7 +30,7 @@ void *kref_concatenate_mem(void *mem1, void *mem2);
  * @param flags: kmalloc flags
  * @param destructor: destructor for this memory
  */
-static inline void *kref_alloc(uint size, void (*destructor)(void *mem))
+static inline void *kref_alloc(size_t size, void (*destructor)(void *mem))
 {
     void *mem = kref_alloc_aligned(size, 0, destructor);
     if (!mem) {
@@ -46,7 +46,7 @@ static inline void *kref_alloc(uint size, void (*destructor)(void *mem))
  * @param flags: kmalloc flags
  * @param destructor: destructor for this memory
  */
-static inline void *kzref_alloc(uint size, void (*destructor)(void *mem))
+static inline void *kzref_alloc(size_t size, void (*destructor)(void *mem))
 {
     void *mem = kref_alloc(size, destructor);
     if (!mem)
