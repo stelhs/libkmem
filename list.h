@@ -69,7 +69,7 @@ static inline struct le *le_next(struct le *le)
 
 static inline struct le *list_first(const struct list *list)
 {
-    return list_ledata(list_head(list));
+    return (struct le *)list_ledata(list_head(list));
 }
 
 
