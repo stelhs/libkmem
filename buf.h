@@ -40,6 +40,7 @@ void buf_put(struct buf *buf, size_t payload_len);
 struct list *buf_split(struct buf *buf, char sep);
 struct buf *buf_trim(struct buf *buf);
 struct buf *buf_sprintf(const char* format, ...);
+void buf_erase(struct buf *buf);
 
 #ifdef __cplusplus
 }

@@ -249,3 +249,9 @@ struct buf *buf_sprintf(const char* format, ...)
     buf_put(buf, len);
     return buf;
 }
+
+void buf_erase(struct buf *buf)
+{
+    memset(buf->data, 0, buf->len);
+    buf->payload_len = 0;
+}
