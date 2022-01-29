@@ -1,5 +1,6 @@
 #include "buf.h"
 #include <ctype.h>
+#include <stdarg.h>
 
 static void buf_destructor(void *mem)
 {
@@ -229,4 +230,22 @@ struct buf *buf_trim(struct buf *buf)
     new_buf = buf_cpy(start, new_len + 1);
     new_buf->data[new_len + 1] = 0;
     return new_buf;
+}
+
+struct buf *buf_sprintf(const char* format, ...)
+{
+    char msg[1024 * 16];
+    va_list args;
+    va_start(args, format);
+    vsprintf(msg, format, args);
+    va_end(args);
+
+    size_t len = strlen(msg);
+    struct buf *buf = buf_alloc(len);
+    if (!buf)
+        return NULL;
+
+    memcpy(buf->data, msg, len);
+    buf_put(buf, len);
+    return buf;
 }
