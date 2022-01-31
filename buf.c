@@ -49,7 +49,7 @@ void *buf_concatenate(struct buf *b1, struct buf *b2)
 }
 
 
-void buf_dump(struct buf *buf, const char *name)
+void _buf_dump(struct buf *buf, const char *name)
 {
     uint cnt = 0;
     uint row_cnt, row_len;
@@ -57,7 +57,7 @@ void buf_dump(struct buf *buf, const char *name)
 
     printf("\n");
     if (name)
-        printf("buf: %s, ", name);
+        printf("buf %s:\n", name);
 
     if (!buf) {
         printf("buf is NULL\n");
@@ -88,9 +88,10 @@ void buf_dump(struct buf *buf, const char *name)
         cnt += row_len;
         printf("\n");
     }
+    fflush(stdout);
 }
 
-void buf_list_dump(struct list *list)
+void _buf_list_dump(struct list *list, const char *list_name)
 {
     struct le *le;
     struct buf *buf;
@@ -98,25 +99,29 @@ void buf_list_dump(struct list *list)
     uint cnt = 0;
     uint numbers;
 
+    printf("\n");
+    if (list_name)
+        printf("list %s:\n", list_name);
     if (!list) {
-        printf("list is empty\n");
+        printf("list is NULL\n");
         return;
     }
 
     numbers = list_count(list);
 
-    printf("---\n");
-    printf("buffers in list: %d\n", numbers);
     if (!numbers)
         return;
+    printf("buffers in list: %d\n", numbers);
 
+    printf("---");
     LIST_FOREACH(list, le) {
         buf = (struct buf *)list_ledata(le);
-        sprintf(buf_name, "buf item %d", cnt);
-        buf_dump(buf, buf_name);
+        sprintf(buf_name, "%d", cnt);
+        _buf_dump(buf, buf_name);
         cnt ++;
     }
     printf("---\n");
+    fflush(stdout);
 }
 
 

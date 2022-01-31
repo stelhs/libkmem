@@ -34,8 +34,10 @@ struct buf *buf_cpy(void *src, size_t len);
 #define buf_ref(buf) kmem_ref(buf);
 void *buf_concatenate(struct buf *b1, struct buf *b2);
 char *buf_to_str(struct buf *buf);
-void buf_dump(struct buf *buf, const char *name);
-void buf_list_dump(struct list *list);
+void _buf_dump(struct buf *buf, const char *name);
+#define buf_dump(buf) _buf_dump(buf, #buf)
+void _buf_list_dump(struct list *list, const char *name);
+#define buf_list_dump(list) _buf_list_dump(list, #list)
 void buf_put(struct buf *buf, size_t payload_len);
 struct list *buf_split(struct buf *buf, char sep);
 struct buf *buf_trim(struct buf *buf);
