@@ -32,28 +32,32 @@ struct buf *buf_strdub(const char *str)
     return buf;
 }
 
-void *buf_concatenate(struct buf *b1, struct buf *b2)
+void *buf_concatenate(const struct buf *b1, const struct buf *b2)
 {
     struct buf *result;
 
-    if (!b1->len || !b2->len)
+    if (!b1 || !b2)
         return NULL;
 
-    result = buf_alloc(b1->len + b2->len);
+    const size_t s1 = buf_payload_size(b1);
+    const size_t s2 = buf_payload_size(b2);
+    if (!s1 || !s2)
+        return NULL;
+
+    result = buf_alloc(s1 + s2);
     if (!result)
         return NULL;
 
-    memcpy(result->data, b1->data, b1->len);
-    memcpy(result->data + b1->len, b2->data, b2->len);
+    memcpy(result->data, b1->data, s1);
+    memcpy(result->data + s1, b2->data, s2);
     return result;
 }
 
 
-void _buf_dump(struct buf *buf, const char *name)
+void _buf_dump(const struct buf *buf, const char *name)
 {
     uint cnt = 0;
     uint row_cnt, row_len;
-    size_t len;
 
     printf("\n");
     if (name)
@@ -63,7 +67,7 @@ void _buf_dump(struct buf *buf, const char *name)
         printf("buf is NULL\n");
         return;
     }
-    len = buf->payload_len ? buf->payload_len : buf->len;
+    const size_t len = buf_payload_size(buf);
     printf("len: %lu, payload_len: %lu\n", buf->len, buf->payload_len);
 
     while(cnt < len) {
@@ -91,13 +95,13 @@ void _buf_dump(struct buf *buf, const char *name)
     fflush(stdout);
 }
 
-void _buf_list_dump(struct list *list, const char *list_name)
+void _buf_list_dump(const struct list *list, const char *list_name)
 {
     struct le *le;
     struct buf *buf;
     char buf_name[16];
-    uint cnt = 0;
-    uint numbers;
+    unsigned cnt = 0;
+    unsigned numbers;
 
     printf("\n");
     if (list_name)
@@ -125,7 +129,7 @@ void _buf_list_dump(struct list *list, const char *list_name)
 }
 
 
-struct buf *buf_cpy(void *src, size_t len)
+struct buf *buf_cpy(const void *src, size_t len)
 {
     struct buf *buf = buf_alloc(len);
     if (!buf)
@@ -140,17 +144,17 @@ struct buf *buf_cpy(void *src, size_t len)
 char *buf_to_str(struct buf *buf)
 {
     char *str;
-    size_t len;
     if (!buf)
         return NULL;
-    if (!buf->data[buf->len - 1])
+
+    const size_t len = buf_payload_size(buf);
+    if (len == buf->len && !buf->data[buf->len - 1])
         return (char *)buf->data;
 
     str = (char *)kref_alloc(buf->len + 1, NULL);
     if (!str)
         return NULL;
     kmem_link_to_kmem(str, buf);
-    len = buf->payload_len ? buf->payload_len : buf->len;
     memcpy(str, buf->data, len);
     str[len] = 0;
     return str;
@@ -163,9 +167,9 @@ void buf_put(struct buf *buf, size_t payload_len)
     buf->payload_len = payload_len;
 }
 
-struct list *buf_split(struct buf *buf, char sep)
+struct list *buf_split(const struct buf *buf, char sep)
 {
-    size_t len = buf->payload_len ? buf->payload_len : buf->len;
+    const size_t len = buf_payload_size(buf);
     size_t part_len = 0;
     struct list *list;
     struct buf *part_buf;
@@ -177,9 +181,9 @@ struct list *buf_split(struct buf *buf, char sep)
         goto err;
     }
 
-    u8 *part = buf->data;
+    const u8 *part = buf->data;
     for (i = 0; i < len; i++) {
-        u8 *p = buf->data + i;
+        const u8 *p = buf->data + i;
         if (*p != sep) {
             part_len ++;
             continue;
@@ -216,13 +220,13 @@ err:
     return list;
 }
 
-struct buf *buf_trim(struct buf *buf)
+struct buf *buf_trim(const struct buf *buf)
 {
-    size_t len = buf->payload_len ? buf->payload_len : buf->len;
+    const size_t len = buf_payload_size(buf);
     size_t new_len;
     struct buf *new_buf;
-    u8 *start = buf->data;
-    u8 *back;
+    const u8 *start = buf->data;
+    const u8 *back;
 
     while(isspace(*start) && *start != 0) start++;
 

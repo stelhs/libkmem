@@ -30,19 +30,24 @@ static inline struct buf *bufz_alloc(size_t size)
 #define buf_list_append(list, buf) list_append(list, &buf->le, buf)
 
 #define buf_deref(buf) kmem_deref(buf)
-struct buf *buf_cpy(void *src, size_t len);
+struct buf *buf_cpy(const void *src, size_t len);
 #define buf_ref(buf) kmem_ref(buf);
-void *buf_concatenate(struct buf *b1, struct buf *b2);
+void *buf_concatenate(const struct buf *b1, const struct buf *b2);
 char *buf_to_str(struct buf *buf);
-void _buf_dump(struct buf *buf, const char *name);
+void _buf_dump(const struct buf *buf, const char *name);
 #define buf_dump(buf) _buf_dump(buf, #buf)
-void _buf_list_dump(struct list *list, const char *name);
+void _buf_list_dump(const struct list *list, const char *name);
 #define buf_list_dump(list) _buf_list_dump(list, #list)
 void buf_put(struct buf *buf, size_t payload_len);
-struct list *buf_split(struct buf *buf, char sep);
-struct buf *buf_trim(struct buf *buf);
+struct list *buf_split(const struct buf *buf, char sep);
+struct buf *buf_trim(const struct buf *buf);
 struct buf *buf_sprintf(const char* format, ...);
 void buf_erase(struct buf *buf);
+
+static inline size_t buf_payload_size(const struct buf *buf)
+{
+    return buf->payload_len ? buf->payload_len : buf->len;
+}
 
 #ifdef __cplusplus
 }
