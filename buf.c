@@ -22,7 +22,7 @@ struct buf *buf_alloc(size_t size)
 
 struct buf *buf_strdub(const char *str)
 {
-    size_t len = strlen(str) + 1;
+    size_t len = strlen(str);
     struct buf *buf = buf_alloc(len);
     if (!buf)
         return NULL;
