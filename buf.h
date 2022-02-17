@@ -43,6 +43,7 @@ struct list *buf_split(const struct buf *buf, char sep);
 struct buf *buf_trim(const struct buf *buf);
 struct buf *buf_sprintf(const char* format, ...);
 void buf_erase(struct buf *buf);
+struct buf *file_get_contents(const char *filename);
 
 static inline size_t buf_payload_size(const struct buf *buf)
 {

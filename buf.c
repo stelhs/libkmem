@@ -189,17 +189,12 @@ struct list *buf_split(const struct buf *buf, char sep)
             continue;
         }
 
-        if (!part_len) {
-            part_len = 0;
-            part = p + 1;
-            continue;
-        }
-
         part_buf = buf_cpy((void *)part, part_len);
         if (!part_buf) {
             print_e("Can't alloc buffer\n");
             goto err;
         }
+
         buf_list_append(list, part_buf);
         part_len = 0;
         part = p + 1;
@@ -228,16 +223,20 @@ struct buf *buf_trim(const struct buf *buf)
     const u8 *start = buf->data;
     const u8 *back;
 
+    if (!len)
+        return (struct buf *)buf;
+
     while(isspace(*start) && *start != 0) start++;
 
     back = buf->data + len;
     while(isspace(*--back) && back != start);
-    new_len = back - start;
+    new_len = back - start + 1;
     if (new_len <= 0)
         return buf_alloc(0);
 
-    new_buf = buf_cpy(start, new_len + 1);
+    new_buf = buf_cpy(start, new_len);
     new_buf->data[new_len + 1] = 0;
+    kmem_link_to_kmem(new_buf, (void *)buf);
     return new_buf;
 }
 
@@ -263,4 +262,67 @@ void buf_erase(struct buf *buf)
 {
     memset(buf->data, 0, buf->len);
     buf->payload_len = 0;
+}
+
+struct buf *file_get_contents(const char *filename)
+{
+    FILE *f;
+    long fsize;
+    struct buf *buf = NULL;
+    int rc;
+
+    f = fopen(filename, "r");
+    if (f == NULL) {
+        print_e("failed to fopen %s\n", filename);
+        return NULL;
+    }
+
+    rc = fseek(f, 0, SEEK_END);
+    if (rc < 0) {
+        print_e("failed to fseek %s\n", filename);
+        goto out;
+    }
+
+    fsize = ftell(f);
+    if (fsize < 0) {
+        print_e("failed to ftell %s\n", filename);
+        goto out;
+    }
+
+    if (fsize == 0) {
+        print_e("file %s is empty\n", filename);
+        goto out;
+    }
+
+    if (fsize > 1024 * 1024) {
+        print_e("file_get_contents() can not load file more then 1Mbyte size. "
+               "File %s, size: %ld\n", filename, fsize);
+        goto out;
+    }
+
+    rc = fseek(f, 0, SEEK_SET);
+    if (rc < 0) {
+        print_e("failed to fseek %s\n", filename);
+        goto out;
+    }
+
+    buf = buf_alloc(fsize);
+    if (!buf) {
+        print_e("Can't alloc for payload data file %s", filename);
+        goto out;
+    }
+
+    rc = fread(buf->data, fsize, 1, f);
+    if (rc < 0) {
+        print_e("failed to fread %s\n", filename);
+        kmem_deref(&buf);
+        buf = NULL;
+        goto out;
+    }
+
+    kmem_ref(buf);
+out:
+    kmem_deref(&buf);
+    fclose(f);
+    return buf;
 }
