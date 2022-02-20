@@ -39,8 +39,8 @@ void *buf_concatenate(const struct buf *b1, const struct buf *b2)
     if (!b1 || !b2)
         return NULL;
 
-    const size_t s1 = buf_payload_size(b1);
-    const size_t s2 = buf_payload_size(b2);
+    const size_t s1 = buf_len(b1);
+    const size_t s2 = buf_len(b2);
     if (!s1 || !s2)
         return NULL;
 
@@ -67,7 +67,7 @@ void _buf_dump(const struct buf *buf, const char *name)
         printf("buf is NULL\n");
         return;
     }
-    const size_t len = buf_payload_size(buf);
+    const size_t len = buf_len(buf);
     printf("len: %lu, payload_len: %lu\n", buf->len, buf->payload_len);
 
     while(cnt < len) {
@@ -147,7 +147,7 @@ char *buf_to_str(struct buf *buf)
     if (!buf)
         return NULL;
 
-    const size_t len = buf_payload_size(buf);
+    const size_t len = buf_len(buf);
     if (len == buf->len && !buf->data[buf->len - 1])
         return (char *)buf->data;
 
@@ -169,7 +169,7 @@ void buf_put(struct buf *buf, size_t payload_len)
 
 struct list *buf_split(const struct buf *buf, char sep)
 {
-    const size_t len = buf_payload_size(buf);
+    const size_t len = buf_len(buf);
     size_t part_len = 0;
     struct list *list;
     struct buf *part_buf;
@@ -217,7 +217,7 @@ err:
 
 struct buf *buf_trim(const struct buf *buf)
 {
-    const size_t len = buf_payload_size(buf);
+    const size_t len = buf_len(buf);
     size_t new_len;
     struct buf *new_buf;
     const u8 *start = buf->data;
