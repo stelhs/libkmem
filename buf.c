@@ -226,7 +226,14 @@ struct buf *buf_trim(const struct buf *buf)
     if (!len)
         return (struct buf *)buf;
 
-    while(isspace(*start) && *start != 0) start++;
+    while(
+        (start < (buf->data + buf_len(buf)))
+        && isspace(*start)
+        && *start != 0
+    )
+        start++;
+    if (start == (buf->data + buf_len(buf)))
+        return buf_alloc(0);
 
     back = buf->data + len;
     while(isspace(*--back) && back != start);
@@ -234,8 +241,9 @@ struct buf *buf_trim(const struct buf *buf)
     if (new_len <= 0)
         return buf_alloc(0);
 
-    new_buf = buf_cpy(start, new_len);
-    new_buf->data[new_len + 1] = 0;
+    new_buf = buf_cpy(start, new_len+1);
+    new_buf->data[new_len] = 0;
+    buf_put(new_buf, new_len);
     kmem_link_to_kmem(new_buf, (void *)buf);
     return new_buf;
 }
