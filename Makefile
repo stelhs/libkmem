@@ -3,7 +3,7 @@ CFLAGS = -fPIC -Wall -Wextra -O2 -g
 LDFLAGS = -shared
 TARGET_LIB = libkmem.so
 
-SRCS = kref.c kref_alloc.c list.c buf.c
+SRCS = kref.c kref_alloc.c list.c buf.c ecdh.c sha256.c base64.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all
