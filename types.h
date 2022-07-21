@@ -1,8 +1,22 @@
+#ifndef LIBKMEM_TYPES_H_
+#define LIBKMEM_TYPES_H_
+
+#include <stdbool.h>
+#include <stdint.h>
+
 #define TRUE  1
 #define FALSE 0
 
-typedef unsigned char u8;
-typedef unsigned int u32;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+typedef uint64_t u64;
+
+typedef int8_t s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef int64_t s64;
+
 typedef u8 byte;
 typedef unsigned int uint;
 typedef unsigned long ulong;
@@ -55,4 +69,6 @@ typedef unsigned long ulong;
     #endif
 #else
     #define print_d(format, ...)
+#endif
+
 #endif
