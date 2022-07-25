@@ -1,6 +1,8 @@
-#include "buf.h"
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdio.h>
+
+#include "buf.h"
 
 static void buf_destructor(void *mem)
 {
@@ -32,7 +34,7 @@ struct buf *buf_strdub(const char *str)
     return buf;
 }
 
-void *buf_concatenate(const struct buf *b1, const struct buf *b2)
+struct buf *buf_concatenate(const struct buf *b1, const struct buf *b2)
 {
     struct buf *result;
 
@@ -332,5 +334,49 @@ struct buf *file_get_contents(const char *filename)
 out:
     kmem_deref(&buf);
     fclose(f);
+    return buf;
+}
+
+struct buf *buf_list_join(const struct list *list, char sep)
+{
+    struct buf *buf = NULL;
+    struct le *le;
+    size_t buf_size = 0;
+    u8 *data = NULL;
+
+    if (!list)
+        return NULL;
+
+    int sep_cnt = list_count(list) - 1;
+    if (sep_cnt < 0)
+        return NULL;
+
+    LIST_FOREACH(list, le) {
+        struct buf *item = list_ledata(le);
+        buf_size += buf_len(item);
+    }
+    if (sep)
+        buf_size += sep_cnt;
+
+    buf = buf_alloc(buf_size);
+    if (!buf) {
+        print_e("Can't alloc buf\n");
+        return NULL;
+    }
+    data = buf->data;
+
+    LIST_FOREACH(list, le) {
+        struct buf *item = list_ledata(le);
+        size_t item_size = buf_len(item);
+        memcpy(data, item->data, item_size);
+        data += item_size;
+        if (!sep || !sep_cnt)
+            continue;
+
+        *data = sep;
+        data++;
+        sep_cnt--;
+    }
+
     return buf;
 }

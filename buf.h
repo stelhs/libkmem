@@ -32,12 +32,13 @@ static inline struct buf *bufz_alloc(size_t size)
 #define buf_deref(buf) kmem_deref(buf)
 struct buf *buf_cpy(const void *src, size_t len);
 #define buf_ref(buf) kmem_ref(buf);
-void *buf_concatenate(const struct buf *b1, const struct buf *b2);
+struct buf *buf_concatenate(const struct buf *b1, const struct buf *b2);
 char *buf_to_str(struct buf *buf);
 void _buf_dump(const struct buf *buf, const char *name);
 #define buf_dump(buf) _buf_dump(buf, #buf)
 void _buf_list_dump(const struct list *list, const char *name);
 #define buf_list_dump(list) _buf_list_dump(list, #list)
+struct buf *buf_list_join(const struct list *list, char sep);
 void buf_put(struct buf *buf, size_t payload_len);
 struct list *buf_split(const struct buf *buf, char sep);
 struct buf *buf_trim(const struct buf *buf);
