@@ -45,6 +45,7 @@ struct buf *buf_trim(const struct buf *buf);
 struct buf *buf_sprintf(const char* format, ...);
 void buf_erase(struct buf *buf);
 struct buf *file_get_contents(const char *filename);
+int buf_cmp(const struct buf *b1, const struct buf *b2);
 
 static inline size_t buf_len(const struct buf *buf)
 {

@@ -380,3 +380,13 @@ struct buf *buf_list_join(const struct list *list, char sep)
 
     return buf;
 }
+
+int buf_cmp(const struct buf *b1, const struct buf *b2)
+{
+    const size_t l1 = buf_len(b1);
+    const size_t l2 = buf_len(b2);
+    if (l1 != l2)
+        return l1 - l2;
+
+    return memcmp(b1->data, b2->data, l1);
+}
