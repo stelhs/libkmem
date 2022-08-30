@@ -2,6 +2,11 @@
 #include "buf.h"
 #include "base64.h"
 
+#ifdef _WIN32
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 
 struct buf *base64_encode(const struct buf *buf)
 {
