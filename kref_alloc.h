@@ -8,6 +8,7 @@ extern "C" {
 #ifndef __APPLE__
     #include <malloc.h>
 #endif
+#include <stdio.h>
 #include <string.h>
 #include "types.h"
 
