@@ -38,9 +38,8 @@ typedef unsigned long ulong;
         typeof( ((type *)0)->member ) *__mptr = (ptr);  \
         (type *)( (char *)__mptr - offsetof(type,member) );})
 #else
-#define container_of(ptr, type, member) (\
-    (type *)( (char *)&((type *)0)->member) - offsetof(type,member) \
-)
+#define container_of(ptr, type, member) (type *)( (u8 *)(ptr) - \
+                                                 offsetof(type,member) )
 #endif
 
 #ifdef PRINT_ERR_TO_FILE
