@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -fPIC -Wall -Wextra -O2 -g
+CFLAGS = -Wno-deprecated-declarations -fPIC -Wall -Wextra -O2 -g
 LDFLAGS = -shared
 TARGET_LIB = libkmem.so
 
