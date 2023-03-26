@@ -20,3 +20,6 @@ include $(SRCS:.c=.d)
 .PHONY: clean
 clean:
 	rm -f ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d)
+
+install: all
+	install -m 644 ../libkmem/libkmem.so /usr/local/lib/
